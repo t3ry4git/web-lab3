@@ -89,6 +89,7 @@ export default class UserModel {
     }
 
     async update() {
+        this.status = 'Wait';
         this.id = localStorage.getItem("current-user");
         let possible_password = document.getElementById("password").value;
         if (JSON.stringify(possible_password).length - 2 < 8) { this.status = 'Password length must be more or equal to 8 symbols'; }
