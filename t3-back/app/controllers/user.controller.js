@@ -1,5 +1,6 @@
 const db = require("../models");
 const User = db.users;
+const bcrypt = require("bcryptjs");
 
 // Create and Save a new User
 exports.create = (req, res) => {
@@ -9,10 +10,11 @@ exports.create = (req, res) => {
     return;
   }
 
-  // Create a User
+  // Create a User with hashed password
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   const user = new User({
     email: req.body.email,
-    password: req.body.password,
+    password: hashedPassword,
     date: req.body.date,
     gender: req.body.gender
   });
@@ -63,7 +65,7 @@ exports.findOneEmail = (req, res) => {
         res.status(404).send({ message: "Not found User with email " + req.params.email });
       else
         {
-          if (data.password == req.body.password)
+          if (bcrypt.compareSync(req.body.password, data.password))
             {
               res.send(data);
             }
@@ -89,9 +91,10 @@ exports.update = (req, res) => {
 
   const userid = req.body.id;
   const newPass = req.body.password;
+  const hashedPassword = bcrypt.hashSync(newPass, 10);
 
   console.log(userid);
-    User.findByIdAndUpdate(userid, {password: newPass}, {new: true})
+    User.findByIdAndUpdate(userid, {password: hashedPassword}, {new: true})
     .then(data => {
       if (!data) {
         res.status(404).send({
